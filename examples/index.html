@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Voice Changer Examples</title>
+  </head>
+  <body>
+    <div>
+      <button id='start'>start</button>
+      <button id='end'>end</button>
+    </div>
+    <script src="../dist/index.js"></script>
+    <script>
+      const VC = window['voice-changer'];
+      console.log(VC.version);
+      const { Changer, createGain, createDistortion } = VC;
+
+      const changer = new Changer();
+      changer
+        .on('start', function() {
+          console.log('vc started');
+        })
+        .on('end', function() {
+          console.log('vc ended');
+        })
+        .use(createGain(200))
+        .use(createDistortion(400))
+
+      const startBtn = document.querySelector('#start');
+      const endBtn = document.querySelector('#end');
+      startBtn.addEventListener('click', function() {
+        navigator
+          .mediaDevices
+          .getUserMedia({audio: true})
+          .then(stream => {
+            const at = stream.getAudioTracks();
+            console.log('audio tracks ', at);
+            changer
+              .input(at[0])
+              .start()
+              .play(new Audio())
+          });
+        endBtn.addEventListener('click', function() {
+          changer.close();
+        });
+      });
+
+    </script>
+  </body>
+</html>
