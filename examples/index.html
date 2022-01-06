@@ -6,6 +6,8 @@
   <body>
     <div>
       <button id='start'>start</button>
+      <button id='pause'>pause</button>
+      <button id='resume'>resume</button>
       <button id='end'>end</button>
     </div>
     <script src="../dist/index.js"></script>
@@ -27,6 +29,8 @@
         // .use(createDistortion(400))
 
       const startBtn = document.querySelector('#start');
+      const pauseBtn = document.querySelector('#pause');
+      const resumeBtn = document.querySelector('#resume');
       const endBtn = document.querySelector('#end');
       startBtn.addEventListener('click', function() {
         navigator
@@ -38,8 +42,19 @@
             changer
               .input(at[0])
               .start()
-              .play(new Audio())
+              .then(() => {
+                return changer.play(new Audio())
+              })
+              .catch((err) => {
+                console.log('error ', err);
+              })
           });
+        pauseBtn.addEventListener('click', function() {
+          changer.pause();
+        });
+        resumeBtn.addEventListener('click', function() {
+          changer.resume();
+        });
         endBtn.addEventListener('click', function() {
           changer.close();
         });

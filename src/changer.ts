@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import { Middleware } from './middleware/types';
-import { WhiteNoiseProcessorURL } from './middleware/white-noise';
+import { getProcessorURL, releaseProcessorURL } from './middleware/white-noise';
 
 /**
  * @internal
@@ -22,13 +22,16 @@ export class Changer extends EventEmitter {
     super();
     this.ctx = new AudioContextClass();
     this.ctx.audioWorklet
-      .addModule(WhiteNoiseProcessorURL)
+      .addModule(getProcessorURL())
       // .addModule(new URL('./worklet/white-noise.worklet.js', import.meta.url))
       .then(() => {
         console.log('loaded processor');
       })
       .catch((err) => {
         console.log('load processor failed', err);
+      })
+      .finally(() => {
+        releaseProcessorURL();
       });
   }
 
@@ -45,15 +48,22 @@ export class Changer extends EventEmitter {
     return this;
   }
 
-  start(): Changer {
+  start(): Promise<void> {
+    if (this.ctx.state === 'closed') {
+      console.warn('The changer was closed');
+      return Promise.reject(new Error('The changer was closed'));
+    }
+    if (this.midNode) {
+      console.warn('The changer has already started');
+      return Promise.reject(new Error('The changer has already started'));
+    }
     this.midNode = this.srcNode;
     this.middleware.forEach((md) => {
       this.midNode = md(this.ctx, this.midNode);
     });
     this.midNode.connect(this.destNode);
-    this.ctx.resume();
     this.emit('start');
-    return this;
+    return this.ctx.resume();
   }
 
   play(audio: HTMLAudioElement): Promise<void> {
@@ -66,10 +76,16 @@ export class Changer extends EventEmitter {
     return stream.getAudioTracks()[0];
   }
 
-  close(): Changer {
-    this.ctx.close();
-
+  close(): Promise<void> {
     this.emit('end');
-    return this;
+    return this.ctx.close();
+  }
+
+  pause(): Promise<void> {
+    return this.ctx.suspend();
+  }
+
+  resume(): Promise<void> {
+    return this.ctx.resume();
   }
 }
