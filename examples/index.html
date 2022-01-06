@@ -12,7 +12,7 @@
     <script>
       const VC = window['voice-changer'];
       console.log(VC.version);
-      const { Changer, createGain, createDistortion } = VC;
+      const { Changer, createGain, createDistortion, whiteNoise } = VC;
 
       const changer = new Changer();
       changer
@@ -22,8 +22,9 @@
         .on('end', function() {
           console.log('vc ended');
         })
+        .use(whiteNoise)
         .use(createGain(200))
-        .use(createDistortion(400))
+        // .use(createDistortion(400))
 
       const startBtn = document.querySelector('#start');
       const endBtn = document.querySelector('#end');
