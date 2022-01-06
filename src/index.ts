@@ -11,5 +11,6 @@ export { version };
 import { Changer } from './changer';
 import { createGain } from './middleware/gain';
 import { createDistortion } from './middleware/distortion';
+import { whiteNoise } from './middleware/white-noise';
 
-export { Changer, createGain, createDistortion };
+export { Changer, createGain, createDistortion, whiteNoise };

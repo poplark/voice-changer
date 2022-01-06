@@ -1,5 +1,7 @@
 import { EventEmitter } from 'events';
 import { Middleware } from './middleware/types';
+import { WhiteNoiseProcessorURL } from './middleware/white-noise';
+
 /**
  * @internal
  */
@@ -19,6 +21,15 @@ export class Changer extends EventEmitter {
   constructor() {
     super();
     this.ctx = new AudioContextClass();
+    this.ctx.audioWorklet
+      .addModule(WhiteNoiseProcessorURL)
+      // .addModule(new URL('./worklet/white-noise.worklet.js', import.meta.url))
+      .then(() => {
+        console.log('loaded processor');
+      })
+      .catch((err) => {
+        console.log('load processor failed', err);
+      });
   }
 
   use(md: Middleware): Changer {
