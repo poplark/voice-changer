@@ -6,6 +6,7 @@ import workletBody from 'raw-loader!babel-loader!./worklet.js';
  */
 let WhiteNoiseProcessorURL = '';
 
+console.log('00000 ', workletBody);
 /**
  * 获取白噪声 Processor 的加载地址
  * @internal
